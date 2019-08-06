@@ -1,28 +1,81 @@
 const graphql=require('graphql');
-const_=require('lodash');
+const _=require('lodash');
 
-const {GraphQLObjectType,GraphQLString,GraphQLSchema} = graphql;
+var books=[
+    {name : 'Name of the wind' , genre: 'Fantasy' , id: '1',authorId:'1'},
+    {name : 'The final Empire' , genre: 'Fantasy' , id: '2',authorId:'2'},
+    {name : 'The Long Earth' , genre: 'Science-Fiction' , id: '3',authorId:'3'},
+    {name : 'The age of heros' , genre: 'Fantasy' , id: '4' , authorId:'2'},
+    {name : 'The color of magic' , genre: 'Fantasy' , id: '5' , authorId:'1'},
+    {name : 'The fear of fantasy' , genre: 'Fantasy' , id: '6' , authorId:'2'}
+    ]
+
+var authors=[
+    {name: 'Brandon Eichh' , age: '65' , id: '1'},
+    {name: 'Peter' , age: '40' , id:'2'},
+    {name: 'John Carter', age:'50', id :'3'}
+    ]
+
+const {GraphQLObjectType,GraphQLString,GraphQLSchema,GraphQLID,GraphQLInt,GraphQLList} = graphql;
 const BookType=new GraphQLObjectType({
     name:'Book',
     fields:()=>({
-        id:{type : GraphQLString},
-        genre:{type: GraphQLString}
+        name:{type:GraphQLString},
+        genre:{type: GraphQLString},
+        id:{type : GraphQLID},
+        author:{
+            type:AuthorType,
+            resolve(parent,args){
+                console.log(parent)
+                return _.find(authors,{id:parent.authorId})
+            }
+        }
     })
 })
-var books=[
-    {name : 'Name of the wind' , genre: 'Fantasy' , id: '1'},
-    {name : 'The final Empire' , genre: 'Fantasy' , id: '2'},
-    {name : 'The Long Earth' , genre: 'Science-Fiction' , id: '3'}
-]
+
+const AuthorType=new GraphQLObjectType({
+    name:'Author',
+    fields:()=>({
+        name:{type:GraphQLString},
+        age:{type:GraphQLInt},
+        id:{type:GraphQLID},
+        book:{
+            type: new GraphQLList(BookType),
+            resolve(parent,args){
+                return _.filter(books,{authorId:parent.id})
+            }
+        }
+    })
+})
 const RootQuery=new GraphQLObjectType({
     name:'RootQueryType',
     fields:{
         book:{
             type:BookType,
-            args:{id:{type:GraphQLString}},
+            args:{id:{type:GraphQLID}},
             resolve(parent,args){
                 //code to get data from db
-                _.find(books,{id:args.id})
+                console.log(typeof (args.id));
+                return _.find(books,{id:args.id})
+            }
+        },
+        author:{
+            type:AuthorType,
+            args:{id:{type:GraphQLID}},
+            resolve(parent,args){
+                return _.find(authors,{id:args.id})
+            }
+        },
+        books:{
+            type:new GraphQLList(BookType),
+            resolve(parent,args){
+                return books
+            }
+        },
+        authors:{
+            type:new GraphQLList(AuthorType),
+            resolve(parent,args){
+                return authors
             }
         }
     }
