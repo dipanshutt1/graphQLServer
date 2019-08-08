@@ -102,9 +102,23 @@ const Mutation=new GraphQLObjectType({
                 console.log(author);
                 return author.save();
             }
-        }
+        },
+        addBook:{
+            type:BookType,
+            args:{
+                name:{type:GraphQLString},
+                genre:{type:GraphQLString}
+        },
+            resolve(parent,args){
+                let book=new Book({
+                    name:args.name,
+                    genre:args.genre,
+                    id:args.id
+                });
+                return book.save();
+            }
     }
-})
+}})
 
 module.exports=new GraphQLSchema({
     query:RootQuery,
