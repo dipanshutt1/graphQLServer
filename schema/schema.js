@@ -114,6 +114,7 @@ const Mutation=new GraphQLObjectType({
                     authorId:args.authorId
                 });
                 return book.save();
+                console.log("changed schema")
             }
     }
 }})
