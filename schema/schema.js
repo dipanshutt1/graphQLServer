@@ -96,7 +96,6 @@ const Mutation=new GraphQLObjectType({
                     age:args.age,
                     id:args.id
                 });
-                console.log(author);
                 return author.save();
             }
         },
